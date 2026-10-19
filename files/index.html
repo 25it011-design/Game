@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Sky Hopper: an original retro-style 2D platformer that runs in your browser.">
+  <title>Sky Hopper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="960" height="540" aria-label="Game view"></canvas>
+
+    <div id="hud" hidden>
+      <div class="hud-item"><span class="lbl">SCORE</span><span id="hud-score">000000</span></div>
+      <div class="hud-item"><span class="lbl">COINS</span><span id="hud-coins">x00</span></div>
+      <div class="hud-item"><span class="lbl">LIVES</span><span id="hud-lives">x3</span></div>
+      <div class="hud-item"><span class="lbl">TIME</span><span id="hud-time">300</span></div>
+      <div class="hud-world" id="hud-world"></div>
+      <div class="hud-btns">
+        <button id="t-pause" class="hud-btn pixel" aria-label="Pause">II</button>
+        <button id="btn-mute" class="hud-btn pixel" aria-label="Mute or unmute">M</button>
+      </div>
+    </div>
+
+    <div id="touch" hidden>
+      <div class="pad-group">
+        <button id="t-left" class="pad pixel" aria-label="Move left">&#9664;</button>
+        <button id="t-right" class="pad pixel" aria-label="Move right">&#9654;</button>
+      </div>
+      <div class="pad-group">
+        <button id="t-down" class="pad small pixel" aria-label="Crouch or enter pipe">&#9660;</button>
+        <button id="t-run" class="pad small pixel" aria-label="Run">RUN</button>
+        <button id="t-jump" class="pad pixel" aria-label="Jump">JUMP</button>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="screen" id="screen-title">
+      <div class="panel center">
+        <h1 class="logo">SKY<span>HOPPER</span></h1>
+        <p class="tag">Five worlds. One brave plumber. Hop to the castle!</p>
+        <div class="menu">
+          <button class="btn pixel" id="btn-play">Play Game</button>
+          <button class="btn pixel" id="btn-levels">Level Select</button>
+          <button class="btn pixel" id="btn-help">How to Play</button>
+          <button class="btn pixel" id="btn-settings">Sound</button>
+          <button class="btn pixel small" id="btn-fs-title">Fullscreen</button>
+        </div>
+        <p class="hs">Best score: <span id="hs-value">0</span></p>
+      </div>
+    </div>
+
+    <!-- Level select -->
+    <div class="screen" id="screen-levels" hidden>
+      <div class="panel">
+        <h2>Select a World</h2>
+        <p class="hint">Finish a world to unlock the next one.</p>
+        <div id="level-list" class="list"></div>
+        <button class="btn pixel" data-back>Back</button>
+      </div>
+    </div>
+
+    <!-- How to play -->
+    <div class="screen" id="screen-help" hidden>
+      <div class="panel">
+        <h2>How to Play</h2>
+        <div class="help-grid">
+          <div><kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>A</kbd> <kbd>D</kbd><span>Move</span></div>
+          <div><kbd>Space</kbd> <kbd>W</kbd> <kbd>&uarr;</kbd><span>Jump (hold for higher)</span></div>
+          <div><kbd>Shift</kbd><span>Run faster</span></div>
+          <div><kbd>&darr;</kbd> or <kbd>S</kbd><span>Crouch. Press on a green pipe to warp.</span></div>
+          <div><kbd>P</kbd> or <kbd>Esc</kbd><span>Pause</span></div>
+          <div><kbd>R</kbd><span>Restart the world</span></div>
+          <div><kbd>F</kbd><span>Fullscreen</span></div>
+        </div>
+        <p class="hint">Stomp enemies from above. Hit ? blocks for coins and power-ups. Break bricks while big. Reach the flagpole to finish a world. In the last world, stomp the boss six times.</p>
+        <button class="btn pixel" data-back>Back</button>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="screen" id="screen-settings" hidden>
+      <div class="panel">
+        <h2>Sound</h2>
+        <label class="row">Volume <input id="set-volume" type="range" min="0" max="100" value="70"></label>
+        <label class="row"><input id="set-music" type="checkbox" checked> Music</label>
+        <label class="row"><input id="set-sfx" type="checkbox" checked> Sound effects</label>
+        <p class="hint">Sound starts after your first click or key press, as browsers require.</p>
+        <button class="btn pixel" data-back>Back</button>
+      </div>
+    </div>
+
+    <!-- Pause -->
+    <div class="screen" id="screen-pause" hidden>
+      <div class="panel center">
+        <h2>Paused</h2>
+        <div class="menu">
+          <button class="btn pixel" id="btn-resume">Resume</button>
+          <button class="btn pixel" id="btn-pause-restart">Restart World</button>
+          <button class="btn pixel" id="btn-fullscreen">Fullscreen</button>
+          <button class="btn pixel" id="btn-pause-title">Quit to Title</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game over -->
+    <div class="screen" id="screen-gameover" hidden>
+      <div class="panel center">
+        <h2 class="bad">Game Over</h2>
+        <p>Score: <span id="gameover-score">0</span></p>
+        <div class="menu">
+          <button class="btn pixel" id="btn-gameover-retry">Try Again</button>
+          <button class="btn pixel" id="btn-gameover-title">Title</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Level complete -->
+    <div class="screen" id="screen-complete" hidden>
+      <div class="panel center">
+        <h2 class="good">World Clear!</h2>
+        <p>Score: <span id="complete-score">0</span></p>
+        <p id="complete-bonus" class="hint"></p>
+        <p>Next: <span id="complete-next"></span></p>
+        <div class="menu">
+          <button class="btn pixel" id="btn-next">Next World</button>
+          <button class="btn pixel" id="btn-complete-title">Title</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory -->
+    <div class="screen" id="screen-victory" hidden>
+      <div class="panel center">
+        <h2 class="good">The Sky Castle Is Free!</h2>
+        <p>Final score: <span id="victory-score">0</span></p>
+        <p>Best score: <span id="victory-best">0</span></p>
+        <button class="btn pixel" id="btn-victory-title">Title</button>
+      </div>
+    </div>
+
+    <div id="error-box" hidden role="alert"></div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
